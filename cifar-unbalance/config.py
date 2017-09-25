@@ -5,8 +5,8 @@ class DefaultConfig(object):
         self.lr = 0.001
         
         ##system configuration
-        self.root_path = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
-
+        #self.root_path = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
+        self.root_path = "/home/lrh/dataset/cifar-unbalance-data/"
 
 if __name__=='__main__':
 

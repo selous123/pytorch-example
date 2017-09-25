@@ -12,11 +12,11 @@ def loss(logits,labels):
         logits: prediction of samples,[batch_size,1]
         labels: true label of samples,[batch_size,1]
     Return:
-        cross entropy loss 
+        cross entropy loss,[1,]
     """
     loss = -torch.mean(labels*torch.log(logits)+(1-labels)*torch.log(1-logits))
 
-    assert loss.shape==(1,)
+    assert loss.size()==(1,)
     return loss
 
 import torch.optim as optim
@@ -30,11 +30,11 @@ def train(net):
     ###optimizer
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
     
-    for epoch in range(2):
-        print "epoch:{}".format(epoch)
+    for epoch in range(200):
+        #print "epoch:{}".format(epoch)
         for i,data in enumerate(dataloader,0):
             images,labels = data
-            images,labels = Variable(images),Variable(labels)
+            images,labels = Variable(images.cuda()),Variable(labels.cuda())
             #print labels.data.numpy()
             #raw_input("wait")
             logits = net(images)
@@ -43,7 +43,7 @@ def train(net):
             optimize.zero_grad()
             l.backward()
             optimize.step()
-            print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
+            #print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
         
         print "epoch is:{},loss is:{}".format(epoch,l.data[0])
 
@@ -58,7 +58,7 @@ def test(net):
     total = 0
     correct = 0
     for images,labels in data_loader:
-        logits = net(Variable(images))
+        logits = net(Variable(images.cuda()))
         ##greater and equal
         predicted = logits.data.ge(0.5)
 # =============================================================================
@@ -66,14 +66,20 @@ def test(net):
 #         print labels.squeeze().size()
 #         raw_input("wait")
 # =============================================================================
-        labels = labels.type('torch.ByteTensor')
+        #labels = labels.type('torch.ByteTensor')
         total += labels.size(0)
-        correct += (predicted == labels).sum()
+        correct += (predicted.cpu().numpy() == labels.numpy()).sum()
     print "correct:{},total:{}".format(correct,total)
 if __name__=='__main__':
     
+    istraining = False
     net = Net()
+    net.cuda()
     net.double()
-    train(net)
-    test(net)
+    if istraining:
+        train(net)
+        torch.save(net.state_dict(),"init.pkl")
+    else:
+        net.load_state_dict(torch.load("init.pkl"))
+        test(net)
     #print "learning rate is {}".format(conf.lr)

@@ -1,5 +1,6 @@
 #coding:utf-8
-ROOT_PATH = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
+#ROOT_PATH = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
+ROOT_PATH = "/home/lrh/dataset/cifar-unbalance-data/"
 import torch
 import torch.utils.data as data
 import cPickle as pickle
