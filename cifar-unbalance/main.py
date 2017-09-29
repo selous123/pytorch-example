@@ -6,7 +6,7 @@ import torch
 
 conf = DefaultConfig()
 
-def loss(logits,labels):
+def loss(logits,labels,*args):
     """
     Args:
         logits: prediction of samples,[batch_size,1]
@@ -14,10 +14,24 @@ def loss(logits,labels):
     Return:
         cross entropy loss,[1,]
     """
+    if args:
+        logits = logits[args[0]]
+        labels = labels[args[0]]
     loss = -torch.mean(labels*torch.log(logits)+(1-labels)*torch.log(1-logits))
-
     assert loss.size()==(1,)
     return loss
+    """
+    loss = labels*torch.log(logits)+(1-labels)*torch.log(1-logits)
+    v = loss.lower(1/conf.K)
+    loss = -torch.mean(loss[v])
+    """
+
+def computeV(labels,logits):
+    
+    loss = -(labels*torch.log(logits)+(1-labels)*torch.log(1-logits))
+    #if loss<1/K : v = 1"easy sample"
+    v = torch.ge(1/conf.K,loss)
+    return v
 
 import torch.optim as optim
 from torch.autograd import Variable
@@ -31,20 +45,29 @@ def train(net):
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
     
     for epoch in range(200):
+        #each epoch loss
+        running_loss = []
         #print "epoch:{}".format(epoch)
         for i,data in enumerate(dataloader,0):
             images,labels = data
+            
             images,labels = Variable(images.cuda()),Variable(labels.cuda())
             #print labels.data.numpy()
             #raw_input("wait")
             logits = net(images)
+            
+            #choose "easy" sample
+            v = computeV(logits,labels)
             #print logits.data.numpy()
-            l = loss(logits,labels)
+            l = loss(logits,labels,v)
+            running_loss.append(l)
             optimize.zero_grad()
             l.backward()
             optimize.step()
             #print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
-        
+        if sum(running_loss)/len(running_loss) < conf.update_threshold:
+            conf.K = conf.K/2
+            
         print "epoch is:{},loss is:{}".format(epoch,l.data[0])
 
 def val(net):
@@ -55,31 +78,48 @@ def test(net):
     test_dataset = cifarUnbalanceDataset(conf.root_path,train=False)
     data_loader = torch.utils.data.DataLoader(test_dataset,batch_size=512,shuffle=False,drop_last=False)
     
-    total = 0
-    correct = 0
+    true_positive_num = 0
+    predicted_positive_num = 0
+    predicted_true_positive_num = 0
     for images,labels in data_loader:
-        logits = net(Variable(images.cuda()))
+        #move the images to GPU
+        if conf.cuda:
+            images = images.cuda()
+        logits = net(Variable(images))
         ##greater and equal
+        print logits
         predicted = logits.data.ge(0.5)
+        if conf.cuda:
+            predicted = predicted.cpu()
+        
+        predicted = predicted.numpy()
+        #print predicted
+        labels = labels.numpy()
+        true_positive_num += np.sum(labels == 1)
+        predicted_positive_num += np.sum(predicted == 1)
+        predicted_true_positive_num += np.sum((labels==1)&(predicted==1))
 # =============================================================================
 #         print predicted.size()
 #         print labels.squeeze().size()
 #         raw_input("wait")
+#
+#        #labels = labels.type('torch.ByteTensor')
+#        total += labels.size(0)
+#        correct += (predicted.cpu().numpy() == labels.numpy()).sum()
 # =============================================================================
-        #labels = labels.type('torch.ByteTensor')
-        total += labels.size(0)
-        correct += (predicted.cpu().numpy() == labels.numpy()).sum()
-    print "correct:{},total:{}".format(correct,total)
+    print "true_positive_num:{},predicted_positive_num:{},predicted_true_positive_num:{}"\
+        .format(true_positive_num,predicted_positive_num,predicted_true_positive_num)
 if __name__=='__main__':
     
-    istraining = False
+    
     net = Net()
-    net.cuda()
+    if conf.cuda:
+        net.cuda()
     net.double()
-    if istraining:
+    if conf.istraining:
         train(net)
         torch.save(net.state_dict(),"init.pkl")
     else:
-        net.load_state_dict(torch.load("init.pkl"))
+        net.load_state_dict(torch.load("init.pkl",map_location=lambda storage, loc: storage))
         test(net)
     #print "learning rate is {}".format(conf.lr)
