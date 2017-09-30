@@ -22,7 +22,7 @@ def loss(logits,labels,*args):
     return loss
     """
     loss = labels*torch.log(logits)+(1-labels)*torch.log(1-logits)
-    v = loss.lower(1/conf.K)
+    v = loss.le(1/conf.K)
     loss = -torch.mean(loss[v])
     """
 
@@ -30,7 +30,7 @@ def computeV(labels,logits):
     
     loss = -(labels*torch.log(logits)+(1-labels)*torch.log(1-logits))
     #if loss<1/K : v = 1"easy sample"
-    v = torch.ge(1/conf.K,loss)
+    v = torch.le(loss,1/conf.K)
     return v
 
 import torch.optim as optim
