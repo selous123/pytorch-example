@@ -44,7 +44,7 @@ def train(net):
     ###optimizer
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
     
-    for epoch in range(200):
+    for epoch in range(conf.epoch_num):
         #each epoch loss
         running_loss = []
         #print "epoch:{}".format(epoch)
@@ -57,16 +57,17 @@ def train(net):
             logits = net(images)
             
             #choose "easy" sample
-            v = computeV(logits,labels)
+            #v = computeV(logits,labels)
             #print logits.data.numpy()
-            l = loss(logits,labels,v)
-            running_loss.append(l)
+            l = loss(logits,labels)
+            #running_loss.append(l.cpu().data().numpy())
             optimize.zero_grad()
             l.backward()
             optimize.step()
             #print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
-        if sum(running_loss)/len(running_loss) < conf.update_threshold:
-            conf.K = conf.K/2
+        #print running_loss
+        #if sum(running_loss)/len(running_loss) < conf.update_threshold:
+        #   conf.K = conf.K/2
             
         print "epoch is:{},loss is:{}".format(epoch,l.data[0])
 

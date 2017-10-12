@@ -5,18 +5,19 @@ class DefaultConfig(object):
         self.lr = 0.001
         
         ##system configuration
-        self.root_path = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
-        #self.root_path = "/home/lrh/dataset/cifar-unbalance-data/"
+        #self.root_path = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
+        self.root_path = "/home/lrh/dataset/cifar-unbalance-data/"
         
         #istraining
-        self.istraining = False
-        
+        self.istraining = True
         #cuda or not
-        self.cuda = False
+        self.cuda = True
         
         #self pace learning
         self.K = 1
         self.update_threshold = 0.01
+
+        self.epoch_num = 500
         
 if __name__=='__main__':
 
