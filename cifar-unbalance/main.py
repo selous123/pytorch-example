@@ -88,12 +88,12 @@ def test(net):
             images = images.cuda()
         logits = net(Variable(images))
         ##greater and equal
-        print logits
+        #print logits
         predicted = logits.data.ge(0.5)
         if conf.cuda:
             predicted = predicted.cpu()
         
-        predicted = predicted.numpy()
+        predicted = predicted.numpy() 
         #print predicted
         labels = labels.numpy()
         true_positive_num += np.sum(labels == 1)
