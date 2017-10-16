@@ -1,6 +1,6 @@
 #coding:utf-8
-#ROOT_PATH = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
-ROOT_PATH = "/home/lrh/dataset/cifar-unbalance-data/"
+ROOT_PATH = "/mnt/hgfs/ubuntu14/dataset/cifar-unbalance-data/"
+#ROOT_PATH = "/home/lrh/dataset/cifar-unbalance-data/"
 import torch
 import torch.utils.data as data
 import cPickle as pickle
@@ -28,6 +28,7 @@ class cifarUnbalanceDataset(data.Dataset):
             datadict = pickle.load(f)
             self.train_data = datadict["data"]
             self.train_labels = datadict["labels"]
+            print self.train_data.shape
             #upsample
             fake_data = self.train_data[self.train_labels.squeeze()==1]
             fake_labels = np.ones(shape=(fake_data.shape[0],1))
