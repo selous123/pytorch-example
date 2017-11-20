@@ -2,7 +2,19 @@
 
 import torch.utils.data as data
 import input_mnist_data as input_data
-import sys
+import numpy as np
+
+def dense_to_onehot(labels,class_num):
+    """
+    Args:
+        labels:[batch_size,1]
+    Return:
+        a:[batch_size,class_num]
+    """
+    a = np.zeros(shape=[labels.shape[0],class_num])
+    a[:,labels.squeeze()] = 1
+    return a
+
 ##read the whole file
 class mnistData(data.Dataset):
     """

@@ -21,12 +21,12 @@ conf = config.DefaultConf()
 def loss(logits,labels,*args):
     """
     Args:
-        logits: prediction of samples,[batch_size,1]
+        logits: prediction of samples,[batch_size,10]
         labels: true label of samples,[batch_size,1]
     Return:
         cross entropy loss,[1,]
     """
-    loss = -torch.mean(labels*torch.log(logits)+(1-labels)*torch.log(1-logits))
+    loss = -torch.mean(labels*torch.log(logits))
     assert loss.size()==(1,) 
     return loss
 
