@@ -4,15 +4,12 @@ import torch.utils.data as data
 import input_mnist_data as input_data
 import numpy as np
 
-def dense_to_onehot(labels,class_num):
-    """
-    Args:
-        labels:[batch_size,1]
-    Return:
-        a:[batch_size,class_num]
-    """
-    a = np.zeros(shape=[labels.shape[0],class_num])
-    a[:,labels.squeeze()] = 1
+
+def dense_to_one_hot(labels,class_num):
+    
+    height = labels.shape[0]
+    a = np.zeros(shape=[height,class_num])
+    a[np.arange(height),labels] = 1
     return a
 
 ##read the whole file
@@ -32,6 +29,7 @@ class mnistData(data.Dataset):
         #train dataset
         if self.train:
             self.train_data,self.train_labels = input_data.read_train_data(self.root)
+            self.train_labels = dense_to_one_hot(self.train_labels,10)
         #test dataset
         else:
             self.test_data,self.test_labels = input_data.read_test_data(self.root)

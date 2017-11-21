@@ -67,7 +67,7 @@ def train(net):
                 conf.train_loss_win=visualize_loss(epoch*len(dataloader)+i,l.data.cpu(),conf.train_loss_env,conf.train_loss_win)
             l.backward()
             optimize.step()
-            print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
+            #print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
         print "epoch is:{},loss is:{}".format(epoch,l.data[0])
 
 
@@ -76,11 +76,8 @@ def test(net):
 
     test_dataset = mnistData(conf.root_path,train=False)
     data_loader = torch.utils.data.DataLoader(test_dataset,batch_size=512,shuffle=False,drop_last=False)
-    
-    true_positive_num = 0
-    predicted_positive_num = 0
-    predicted_true_positive_num = 0
-    predicted_false_negative_num = 0
+    num_examples = 0
+    predicted_num = 0
     for images,labels in data_loader:
         #move the images to GPU
         images = images.type(torch.DoubleTensor)
@@ -89,17 +86,18 @@ def test(net):
         logits = net(Variable(images))
         ##greater and equal
         #print logits
-        predicted = logits.data.ge(0.5)
+        _,predicted = logits.data.max(dim=1)
+        #print predicted
         if conf.cuda:
             predicted = predicted.cpu()
         
         predicted = predicted.numpy() 
         #print predicted
         labels = labels.numpy()
-        true_positive_num += np.sum(labels == 1)
-        predicted_positive_num += np.sum(predicted == 1)
-        predicted_true_positive_num += np.sum((labels==1)&(predicted==1))
-        predicted_false_negative_num += np.sum((labels==0)&(predicted==0))
+        num_examples+=labels.shape[0]
+        predicted_num += np.sum(predicted == labels)
+    test_acc = predicted_num/num_examples
+    print "accuracy of test data is {}".format(test_acc)
 # =============================================================================
 #         print predicted.size()
 #         print labels.squeeze().size()
@@ -109,12 +107,6 @@ def test(net):
 #        total += labels.size(0)
 #        correct += (predicted.cpu().numpy() == labels.numpy()).sum()
 # =============================================================================
-    
-    confusion_matrix = [["table","predicted malware(1)","predicted normal(0)"],
-                         ["actual malware(1)",predicted_true_positive_num,true_positive_num-predicted_true_positive_num],
-                         ["actual normal(0)",predicted_positive_num-predicted_true_positive_num,predicted_false_negative_num]]
-    print tabulate(confusion_matrix)    
-    print "Precision is {},Recall is {}".format(predicted_true_positive_num/predicted_positive_num,predicted_true_positive_num/true_positive_num)
 if __name__=='__main__':
     
     
