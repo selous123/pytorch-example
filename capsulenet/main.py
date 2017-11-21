@@ -7,6 +7,7 @@ import torch.optim as optim
 from data.dataset import mnistData
 from torch.autograd import Variable
 import utils
+from visualize.visutils import visualize_loss
 conf = config.DefaultConf()
 """
 Created on Fri Nov 17 16:36:52 2017
@@ -37,6 +38,8 @@ def train(net):
             
             v = net(images)
             l = utils.loss(labels,v)
+            if conf.visualize:
+                conf.train_loss_win=visualize_loss(epoch*len(dataloader)+i,l.data.cpu(),conf.train_loss_env,conf.train_loss_win)
             optimize.zero_grad()
             l.backward()
             optimize.step()

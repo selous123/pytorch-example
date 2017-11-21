@@ -13,9 +13,14 @@ class DefaultConf(object):
         self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
         self.istraining = True
         self.cuda= True
-        self.lr = 0.001
+        self.lr = 0.01
         
         self.epoch_num = 500
+        
+        self.visualize = True
+        #visualize train loss
+        self.train_loss_env = "mnist_capsule_train20171121"
+        self.train_loss_win = None
     
 if __name__=="__main__":
     conf = DefaultConf()
