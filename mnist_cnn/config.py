@@ -14,11 +14,11 @@ class DefaultConf(object):
         ##net configuration
         self.lr = 0.01
         ##system configuration
-        self.root_path = "/home/lrh/dataset/mnist"
+        self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
         #batch size
         self.batch_size = 1024
         #istraining
-        self.istraining = False
+        self.istraining = True
         #cuda or not
         self.cuda = True
         
@@ -26,12 +26,12 @@ class DefaultConf(object):
         self.bn=True
         
         #store pkl name
-        self.pkl_name = "mnist_init_300epoch.pkl"
-        self.epoch_num = 300
+        self.pkl_name = "pkls/mnist_init_500epoch.pkl"
+        self.epoch_num = 500
         
         self.visualize = True
         #visualize train loss
-        self.train_loss_env = "malware_train20171120"
+        self.train_loss_env = "mnist_train20171121"
         self.train_loss_win = None
     
 if __name__=="__main__":
