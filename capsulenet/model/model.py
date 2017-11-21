@@ -13,7 +13,7 @@ class Net(nn.Module):
         x = F.relu(self.conv1(x))
         x = self.caps_conv(x)
         x = self.caps_net(x)
-        print x.shape
+        #print x.shape
         return x
     
 

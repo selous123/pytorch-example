@@ -192,14 +192,14 @@ def read_train_data(root_path):
     print "extract train images"
     train_labels = load_train_labels(os.path.join(root_path,"train-labels.idx1-ubyte"))
     print "extract train labels"
-    return train_images[:,np.newaxis,:,:],train_labels
+    return train_images[:,np.newaxis,:,:],train_labels.astype(np.int64)
 
 def read_test_data(root_path):
     test_images = load_test_images(os.path.join(root_path,"t10k-images.idx3-ubyte"))
     print "extract test images"
     test_labels = load_test_labels(os.path.join(root_path,"t10k-labels.idx1-ubyte"))
     print "extract test labels"
-    return test_images[:,np.newaxis,:,:],test_labels
+    return test_images[:,np.newaxis,:,:],test_labels.astype(np.int64)
 
 def run():
     train_images = load_train_images()

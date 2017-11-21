@@ -1,6 +1,6 @@
 #coding:utf-8
 import torch
-
+from torch.autograd.variable import Variable
 
 def squash(x,dim):
     #we should do spuash in each capsule.
@@ -16,15 +16,15 @@ def loss(labels,v):
         v:[batch_size,10,16,1]
     """
     #shape->[batch_size,10,1,1]
+    #print v
     v_norm = torch.sqrt(torch.sum(v**2,dim=2,keepdim=True)).squeeze()
-    zero = torch.zeros([1])
+    zero = Variable(torch.zeros([1])).double()
     m_plus = 0.9
     m_minus = 0.1
-    lamda = 0.5
-    
+    lamda = Variable(torch.Tensor([0.5])).double()
     #shape->[batch_size,10]
-    L = torch.max(0,m_plus-v_norm)**2
-    R = torch.max(0,v_norm-m_minus)**2
+    L = torch.max(zero,m_plus-v_norm)**2
+    R = torch.max(zero,v_norm-m_minus)**2
     #equation 4 in paper
     loss = torch.sum(labels*L+lamda*(1-labels)*R,dim=1)
     #shape->[batch_size,]

@@ -6,6 +6,7 @@ import torch
 import torch.optim as optim
 from data.dataset import mnistData
 from torch.autograd import Variable
+import utils
 conf = config.DefaultConf()
 """
 Created on Fri Nov 17 16:36:52 2017
@@ -21,12 +22,25 @@ def train(net):
     
     ###optimizer
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    
-    for i,data in enumerate(dataloader,0):
-        images,labels = data
-        
-        images = Variable(images)
-        print net(images).shape
+    optimize = optim.SGD(net.parameters(),lr = conf.lr)
+    for name,parameter in net.named_parameters():
+        print name,parameter.shape
+    raw_input("wait")
+    for epoch in range(conf.epoch_num):
+        for data in enumerate(dataloader,0):
+            images,labels = data
+            if conf.cuda:
+                images,labels = images.cuda(),labels.cuda()
+            #print labels.type
+            images,labels= Variable(images),Variable(labels)
+            
+            v = net(images)
+            l = utils.loss(labels,v)
+            optimize.zero_grad()
+            l.backward()
+            optimize.step()
+        print "epoch is {},loss is {}".format(epoch,l.data[0])
+
 def test(net):
     pass
 

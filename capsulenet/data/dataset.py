@@ -2,11 +2,16 @@
 
 import torch.utils.data as data
 import input_mnist_data as input_data
-import sys
-sys.path.append("..")
-from config import DefaultConf
+import numpy as np
 
-conf = DefaultConf()
+
+def dense_to_one_hot(labels,class_num):
+    
+    height = labels.shape[0]
+    a = np.zeros(shape=[height,class_num])
+    a[np.arange(height),labels] = 1
+    return a
+
 ##read the whole file
 class mnistData(data.Dataset):
     """
@@ -23,10 +28,11 @@ class mnistData(data.Dataset):
         self.train = train
         #train dataset
         if self.train:
-            self.train_data,self.train_labels = input_data.read_train_data(conf.root_path)
+            self.train_data,self.train_labels = input_data.read_train_data(self.root)
+            self.train_labels = dense_to_one_hot(self.train_labels,10)
         #test dataset
         else:
-            self.test_data,self.test_labels = input_data.read_test_data(conf.root_path)
+            self.test_data,self.test_labels = input_data.read_test_data(self.root)
 
     
     def __getitem__(self,index):

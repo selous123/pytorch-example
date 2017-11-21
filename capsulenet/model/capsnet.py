@@ -39,7 +39,7 @@ class CapsNet(nn.Module):
         # u_hat shape->(batch_size,in_features,out_features,out_dim)=(batch,1152,10,1,16)
         u_hat = torch.matmul(x,W)
         #b for generate weight c,with shape->[1,1152,10,1]
-        b = torch.zeros([1,self.in_features,self.out_features,1])
+        b = Variable(torch.zeros([1,self.in_features,self.out_features,1]).double())
         for i in range(3):
             c = F.softmax(b,dim=2)
             #c shape->[batch_size,1152,10,1,1]
@@ -52,9 +52,10 @@ class CapsNet(nn.Module):
             #(batch,1152,10,1,16)matmul(batch,1152,10,16,1)->(batch,1152,10,1,1)
             #squeeze
             #mean->(1,1152,10,1)
-            update_b = torch.matmul(u_hat,v_1).squeeze(dim=4).mean(dim=0,keepdim=True)
+            #print u_hat.shape,v_1.shape
+            update_b = torch.matmul(u_hat,v_1.transpose(3,4)).squeeze(dim=4).mean(dim=0,keepdim=True)
             b = b+update_b
-        return v.squeeze(dim=1)
+        return v.squeeze(1).transpose(2,3)
     
 
 if __name__ == "__main__":
