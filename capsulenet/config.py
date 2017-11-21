@@ -8,10 +8,11 @@ Created on Fri Nov 17 16:03:09 2017
 
 class DefaultConf(object):
     def __init__(self):
-        self.batch_size = 4
-        self.root_path = "/mnt/hgfs/ubuntu14/dataset/mnist"
+	self.debug = False
+        self.batch_size = 256
+        self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
         self.istraining = True
-        self.cuda= False
+        self.cuda= True
         self.lr = 0.001
         
         self.epoch_num = 500

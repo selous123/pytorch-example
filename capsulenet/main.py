@@ -23,11 +23,12 @@ def train(net):
     ###optimizer
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    for name,parameter in net.named_parameters():
-        print name,parameter.shape
-    raw_input("wait")
+    if conf.debug:
+    	for name,parameter in net.named_parameters():
+            print name,parameter.shape
+        raw_input("wait")
     for epoch in range(conf.epoch_num):
-        for data in enumerate(dataloader,0):
+        for i,data in enumerate(dataloader,0):
             images,labels = data
             if conf.cuda:
                 images,labels = images.cuda(),labels.cuda()
@@ -39,6 +40,7 @@ def train(net):
             optimize.zero_grad()
             l.backward()
             optimize.step()
+	    print "step is {},loss is {}".format(i,l.data[0])
         print "epoch is {},loss is {}".format(epoch,l.data[0])
 
 def test(net):

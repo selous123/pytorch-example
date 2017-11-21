@@ -33,7 +33,7 @@ class CapsConv(nn.Module):
         #input x with shape ->[batch_size,in_features,height,width]
         #output with shape->[batch_size,32,6,6]
         
-        x = self.conv(x)
+        x = [self.conv[i](x) for i in range(self.out_dim)]
         #output with shape->[batch_size,8,32,6,6]
         x = torch.stack(x,dim=1)
         #return shape->[batch_size,1152,8]

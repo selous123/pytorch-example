@@ -39,7 +39,10 @@ class CapsNet(nn.Module):
         # u_hat shape->(batch_size,in_features,out_features,out_dim)=(batch,1152,10,1,16)
         u_hat = torch.matmul(x,W)
         #b for generate weight c,with shape->[1,1152,10,1]
-        b = Variable(torch.zeros([1,self.in_features,self.out_features,1]).double())
+	b = torch.zeros([1,self.in_features,self.out_features,1]).double()
+	if self.cuda:
+	    b = b.cuda()
+        b = Variable(b)
         for i in range(3):
             c = F.softmax(b,dim=2)
             #c shape->[batch_size,1152,10,1,1]

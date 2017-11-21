@@ -1,7 +1,8 @@
 #coding:utf-8
 import torch
 from torch.autograd.variable import Variable
-
+import config
+conf = config.DefaultConf()
 def squash(x,dim):
     #we should do spuash in each capsule.
     #we use dim to select
@@ -18,10 +19,15 @@ def loss(labels,v):
     #shape->[batch_size,10,1,1]
     #print v
     v_norm = torch.sqrt(torch.sum(v**2,dim=2,keepdim=True)).squeeze()
-    zero = Variable(torch.zeros([1])).double()
+    zero = torch.zeros([1]).double()
+    lamda = torch.Tensor([0.5]).double()
+    if conf.cuda:
+	zero = zero.cuda()
+	lamda = lamda.cuda()
+    zero = Variable(zero)
+    lamda = Variable(lamda)
     m_plus = 0.9
     m_minus = 0.1
-    lamda = Variable(torch.Tensor([0.5])).double()
     #shape->[batch_size,10]
     L = torch.max(zero,m_plus-v_norm)**2
     R = torch.max(zero,v_norm-m_minus)**2
