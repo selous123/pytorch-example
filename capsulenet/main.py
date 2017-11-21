@@ -56,8 +56,8 @@ if __name__=="__main__":
     net.double()
     if conf.istraining:
         train(net)
-        torch.save(net.state_dict(),"init.pkl")
+        torch.save(net.state_dict(),"pkls/mnist_capsule.pkl")
     else:
-        net.load_state_dict(torch.load("init.pkl",map_location=lambda storage, loc: storage))
+        net.load_state_dict(torch.load("pkls/mnist_capsule.pkl",map_location=lambda storage, loc: storage))
         test(net)
     #print "learning rate is {}".format(conf.lr)
