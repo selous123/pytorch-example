@@ -25,7 +25,7 @@ def train(net):
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
     if conf.debug:
-    	for name,parameter in net.named_parameters():
+        for name,parameter in net.named_parameters():
             print name,parameter.shape
         raw_input("wait")
     for epoch in range(conf.epoch_num):
@@ -43,11 +43,34 @@ def train(net):
             optimize.zero_grad()
             l.backward()
             optimize.step()
-	    print "step is {},loss is {}".format(i,l.data[0])
+            print "step is {},loss is {}".format(i,l.data[0])
         print "epoch is {},loss is {}".format(epoch,l.data[0])
 
 def test(net):
-    pass
+    test_dataset = mnistData(conf.root_path,train=False)
+    dataloader = torch.utils.data.DataLoader(test_dataset,batch_size=conf.batch_size,shuffer=False,drop_last=False)
+    predicted_true_num = 0
+    total_num = 0
+    
+    for i,data in enumerate(dataloader,0):
+        #labels shape[batch_size,]
+        images,labels = data
+        if conf.cuda:
+            images = images.cuda()
+        images= Variable(images)
+        #shape->[batch_size,10,16,1]
+        v = net(images)
+        #shape->[batch_size,10]
+        v_norm = torch.sqrt(torch.sum(v**2,dim=2,keepdim=True)).squeeze()
+        
+        #shape->[batch_size,]
+        _,predicted = v_norm.max(dim=1)
+        
+        predicted_true_num += torch.sum(predicted==labels)
+        total_num += labels.shape[0]
+    test_acc = predicted_true_num/total_num
+    print "accuracy of test is {}".format(test_acc)
+    
 
 if __name__=="__main__":
     net = Net()

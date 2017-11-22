@@ -37,5 +37,7 @@ class CapsConv(nn.Module):
         #output with shape->[batch_size,8,32,6,6]
         x = torch.stack(x,dim=1)
         #return shape->[batch_size,1152,8]
+        x = x.view(x.size(0),self.out_dim,-1).transpose(1,2)
+        #return shape->[batch_size,1152,8]
         x = utils.squash(x,dim=2)
-        return x.view(x.size(0),self.out_dim,-1).transpose(1,2)
+        return x
