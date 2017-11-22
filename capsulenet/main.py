@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+from __future__ import division
 from model.model import Net
 import config
 import torch
@@ -48,7 +49,7 @@ def train(net):
 
 def test(net):
     test_dataset = mnistData(conf.root_path,train=False)
-    dataloader = torch.utils.data.DataLoader(test_dataset,batch_size=conf.batch_size,shuffer=False,drop_last=False)
+    dataloader = torch.utils.data.DataLoader(test_dataset,batch_size=conf.batch_size,shuffle=False,drop_last=True)
     predicted_true_num = 0
     total_num = 0
     
@@ -64,11 +65,15 @@ def test(net):
         v_norm = torch.sqrt(torch.sum(v**2,dim=2,keepdim=True)).squeeze()
         
         #shape->[batch_size,]
-        _,predicted = v_norm.max(dim=1)
+        _,predicted = v_norm.data.max(dim=1)
+	if conf.cuda:
+	    predicted = predicted.cpu()
+	predicted = predicted.numpy()
         
         predicted_true_num += torch.sum(predicted==labels)
         total_num += labels.shape[0]
     test_acc = predicted_true_num/total_num
+    print "total number is {}".format(total_num)
     print "accuracy of test is {}".format(test_acc)
     
 

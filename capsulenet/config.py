@@ -9,17 +9,17 @@ Created on Fri Nov 17 16:03:09 2017
 class DefaultConf(object):
     def __init__(self):
 	self.debug = False
-        self.batch_size = 128
+        self.batch_size = 256
         self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
         self.istraining = True
         self.cuda= True
         self.lr = 0.01
         
-        self.epoch_num = 200
+        self.epoch_num = 50
         
         self.visualize = True
         #visualize train loss
-        self.train_loss_env = "mnist_capsule_train20171121"
+        self.train_loss_env = "mnist_capsule_train20171122"
         self.train_loss_win = None
     
 if __name__=="__main__":
