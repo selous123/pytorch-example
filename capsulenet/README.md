@@ -9,7 +9,7 @@ python2.7,pytoch0.4.0a0+6eca9e0,visdom0.1.6.0
 
 参考代码：https://github.com/timomernick/pytorch-capsule
 
-## 写下开头
+## 写在开头
 capsule是hinton老爷子最近提出的神经网络架构，其目的在于将传统的用点表示特征的方式改为使用向量表示．所以capsule网络的输出v的shape为[batch_size,10,16,1]，其中向量v_j([16,1])的范数就为对应类别的可能性P
 
 ## 基本概念
@@ -188,5 +188,62 @@ class CapsNet(nn.Module):
         return v.squeeze(1).transpose(2,3)
 ```
 
+网络：
+```
+Net(
+  (conv1): Conv2d (1, 256, kernel_size=(9, 9), stride=(1, 1))
+  (caps_conv): CapsConv(
+    (unit_0): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_1): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_2): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_3): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_4): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_5): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_6): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+    (unit_7): ConvUnit(
+      (conv0): Conv2d (256, 32, kernel_size=(9, 9), stride=(2, 2))
+    )
+  )
+  (caps_net): CapsNet(
+  )
+)
+
+```
+bp优化参数
+```
+conv1.weight (256L, 1L, 9L, 9L)
+conv1.bias (256L,)
+caps_conv.unit_0.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_0.conv0.bias (32L,)
+caps_conv.unit_1.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_1.conv0.bias (32L,)
+caps_conv.unit_2.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_2.conv0.bias (32L,)
+caps_conv.unit_3.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_3.conv0.bias (32L,)
+caps_conv.unit_4.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_4.conv0.bias (32L,)
+caps_conv.unit_5.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_5.conv0.bias (32L,)
+caps_conv.unit_6.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_6.conv0.bias (32L,)
+caps_conv.unit_7.conv0.weight (32L, 256L, 9L, 9L)
+caps_conv.unit_7.conv0.bias (32L,)
+caps_net.W (1L, 1152L, 10L, 8L, 16L)
+```
 其他的常规代码可以参看我的github地址:https://github.com/selous123/pytorch-example/tree/master/capsulenet
 

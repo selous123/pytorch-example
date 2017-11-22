@@ -19,4 +19,5 @@ class Net(nn.Module):
 
 if __name__=="__main__":
     net = Net()
-    print net  
+    for name,parameter in net.named_parameters():
+        print name,parameter.shape

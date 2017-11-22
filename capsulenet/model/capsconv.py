@@ -2,6 +2,8 @@
 #author:selous
 import torch
 import torch.nn as nn
+import sys
+sys.path.append("..")
 import utils
 
 class ConvUnit(nn.Module):

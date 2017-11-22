@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
+import sys
+sys.path.append("..")
 import utils
 import config
 
@@ -63,4 +65,4 @@ class CapsNet(nn.Module):
 
 if __name__ == "__main__":
     net = CapsNet()
-    print net
+    
