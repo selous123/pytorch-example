@@ -24,7 +24,7 @@ def train(net):
     
     ###optimizer
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    optimize = optim.Adam(net.parameters(),lr = conf.lr)
+    optimize = optim.SGD(net.parameters(),lr = conf.lr)
     if conf.debug:
         for name,parameter in net.named_parameters():
             print name,parameter.shape

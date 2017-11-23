@@ -11,11 +11,11 @@ class DefaultConf(object):
 	self.debug = False
         self.batch_size = 256
         self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
-        self.istraining = True
+        self.istraining = False
         self.cuda= True
         self.lr = 0.01
         
-	self.model_name = "pkls/mnist_capsule_20171123_adam.pkl"
+	self.model_name = "pkls/mnist_capsule_20171123_adam.pkl_10"
         self.epoch_num = 200
         
         self.visualize = True
