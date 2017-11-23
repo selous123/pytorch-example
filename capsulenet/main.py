@@ -24,7 +24,7 @@ def train(net):
     
     ###optimizer
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    optimize = optim.SGD(net.parameters(),lr = conf.lr)
+    optimize = optim.Adam(net.parameters(),lr = conf.lr)
     if conf.debug:
         for name,parameter in net.named_parameters():
             print name,parameter.shape
@@ -46,6 +46,8 @@ def train(net):
             optimize.step()
             print "step is {},loss is {}".format(i,l.data[0])
         print "epoch is {},loss is {}".format(epoch,l.data[0])
+	if epoch!=0 and epoch%10==0:
+	    torch.save(net.state_dict(),conf.model_name+"_"+str(epoch))
 
 def test(net):
     test_dataset = mnistData(conf.root_path,train=False)
@@ -84,8 +86,8 @@ if __name__=="__main__":
     net.double()
     if conf.istraining:
         train(net)
-        torch.save(net.state_dict(),"pkls/mnist_capsule.pkl")
+        torch.save(net.state_dict(),conf.model_name)
     else:
-        net.load_state_dict(torch.load("pkls/mnist_capsule.pkl",map_location=lambda storage, loc: storage))
+        net.load_state_dict(torch.load(conf.model_name,map_location=lambda storage, loc: storage))
         test(net)
     #print "learning rate is {}".format(conf.lr)
