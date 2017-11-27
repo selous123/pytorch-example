@@ -9,13 +9,13 @@ Created on Fri Nov 17 16:03:09 2017
 class DefaultConf(object):
     def __init__(self):
 	self.debug = False
-        self.batch_size = 256
+        self.batch_size = 128
         self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
-        self.istraining = False
+        self.istraining = True
         self.cuda= True
         self.lr = 0.01
         
-	self.model_name = "pkls/mnist_capsule_20171124_sgd.pkl_600"
+	self.model_name = "pkls/mnist_capsule_20171127_sgd.pkl"
         self.epoch_num = 1000
         
         self.visualize = True
