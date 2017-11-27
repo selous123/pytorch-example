@@ -13,7 +13,7 @@ def dense_to_one_hot(labels,class_num):
     return a
 
 def augmentation(x, max_shift=2):
-    _, _, height, width = x.size()
+    _, _, height, width = x.shape
 
     h_shift, w_shift = np.random.randint(-max_shift, max_shift + 1, size=2)
     source_height_slice = slice(max(0, h_shift), h_shift + height)
@@ -21,9 +21,9 @@ def augmentation(x, max_shift=2):
     target_height_slice = slice(max(0, -h_shift), -h_shift + height)
     target_width_slice = slice(max(0, -w_shift), -w_shift + width)
 
-    shifted_image = np.zeros(*x.size())
+    shifted_image = np.zeros(x.shape)
     shifted_image[:, :, source_height_slice, source_width_slice] = x[:, :, target_height_slice, target_width_slice]
-    return shifted_image.float()
+    return shifted_image
 ##read the whole file
 class mnistData(data.Dataset):
     """
