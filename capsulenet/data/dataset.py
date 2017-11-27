@@ -35,14 +35,14 @@ class mnistData(data.Dataset):
         self.root,self.train,self.data,self.labels
         
     """
-    def __init__(self,root,train,augmentation=True):
+    def __init__(self,root,train,augment=True):
         self.root = root
         self.train = train
         #train dataset
         if self.train:
             self.train_data,self.train_labels = input_data.read_train_data(self.root)
             self.train_labels = dense_to_one_hot(self.train_labels,10)
-            if augmentation:
+            if augment:
                 self.train_data = augmentation(self.train_data / 255.0)
         #test dataset
         else:
