@@ -11,12 +11,12 @@ class DefaultConf(object):
 	self.debug = False
         self.batch_size = 256
         self.root_path = "/home/lili/Tao_Zhang/dataset/mnist"
-        self.istraining = True
+        self.istraining = False
         self.cuda= True
         self.lr = 0.01
         
-	self.model_name = "pkls/mnist_capsule_20171124_adam.pkl"
-        self.epoch_num = 20
+	self.model_name = "pkls/mnist_capsule_20171124_sgd.pkl_600"
+        self.epoch_num = 1000
         
         self.visualize = True
         #visualize train loss
