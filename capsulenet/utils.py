@@ -19,6 +19,7 @@ def loss(labels,v):
     #shape->[batch_size,10,1,1]
     #print v
     v_norm = torch.sqrt(torch.sum(v**2,dim=2,keepdim=True)).squeeze()
+    print "v_norm:{}".format(v_norm)
     zero = torch.zeros([1]).double()
     lamda = torch.Tensor([0.5]).double()
     if conf.cuda:
