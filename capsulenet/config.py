@@ -15,12 +15,12 @@ class DefaultConf(object):
         self.cuda= True
         self.lr = 0.01
         
-	self.model_name = "pkls/mnist_capsule_20171123_adam.pkl_10"
-        self.epoch_num = 200
+	self.model_name = "pkls/mnist_capsule_20171124_sgd.pkl_560"
+        self.epoch_num = 1000
         
         self.visualize = True
         #visualize train loss
-        self.train_loss_env = "mnist_capsule_train20171123"
+        self.train_loss_env = "mnist_capsule_train20171124"
         self.train_loss_win = None
     
 if __name__=="__main__":
