@@ -7,7 +7,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
-from torchvision import datasets, transforms
+import sys
+sys.path.append("..")
+from data.dataset import mnistData
 import torch.nn.functional as F
 
 from capsule_network import CapsuleNetwork
@@ -20,7 +22,7 @@ learning_rate = 0.01
 
 batch_size = 128
 test_batch_size = 128
-
+root_path = "/home/lili/Tao_Zhang/dataset/mnist"
 # Stop training if loss goes below this threshold.
 early_stop_loss = 0.0001
 
@@ -29,15 +31,11 @@ early_stop_loss = 0.0001
 #
 
 # Normalization for MNIST dataset.
-dataset_transform = transforms.Compose([
-                       transforms.ToTensor(),
-                       transforms.Normalize((0.1307,), (0.3081,))
-                   ])
 
-train_dataset = datasets.MNIST('../data', train=True, download=True, transform=dataset_transform)
+train_dataset = mnistData(root_path,train=True)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-test_dataset = datasets.MNIST('../data', train=False, download=True, transform=dataset_transform)
+test_dataset = mnistData(root_path,train=False)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=test_batch_size, shuffle=True)
 
 #
