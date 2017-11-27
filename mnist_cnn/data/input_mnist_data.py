@@ -188,14 +188,14 @@ def load_test_labels(idx_ubyte_file=test_labels_idx1_ubyte_file):
 
 import os
 def read_train_data(root_path):
-    train_images = load_train_images(os.path.join(root_path,"train-images.idx3-ubyte")) / 255.0
+    train_images = load_train_images(os.path.join(root_path,"train-images.idx3-ubyte"))
     print "extract train images"
     train_labels = load_train_labels(os.path.join(root_path,"train-labels.idx1-ubyte"))
     print "extract train labels"
     return train_images[:,np.newaxis,:,:],train_labels.astype(np.int64)
 
 def read_test_data(root_path):
-    test_images = load_test_images(os.path.join(root_path,"t10k-images.idx3-ubyte")) / 255.0
+    test_images = load_test_images(os.path.join(root_path,"t10k-images.idx3-ubyte"))
     print "extract test images"
     test_labels = load_test_labels(os.path.join(root_path,"t10k-labels.idx1-ubyte"))
     print "extract test labels"
