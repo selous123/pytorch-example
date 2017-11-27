@@ -24,7 +24,7 @@ def train(net):
     
     ###optimizer
     #optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    optimize = optim.SGD(net.parameters(),lr = conf.lr)
+    optimize = optim.Adam(net.parameters(),lr = conf.lr)
     if conf.debug:
         for name,parameter in net.named_parameters():
             print name,parameter.shape
@@ -36,7 +36,6 @@ def train(net):
                 images,labels = images.cuda(),labels.cuda()
             #print labels.type
             images,labels= Variable(images),Variable(labels)
-            print labels
             v = net(images)
             l = utils.loss(labels,v)
             if conf.visualize:
