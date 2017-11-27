@@ -36,7 +36,7 @@ def train(net):
                 images,labels = images.cuda(),labels.cuda()
             #print labels.type
             images,labels= Variable(images),Variable(labels)
-            
+            print labels
             v = net(images)
             l = utils.loss(labels,v)
             if conf.visualize:

@@ -64,5 +64,8 @@ class CapsNet(nn.Module):
     
 
 if __name__ == "__main__":
-    net = CapsNet()
+    net = CapsNet(1152,10,8,16)
+    
+    a = torch.ones([4,1152,8])
+    print net(a).shape
     

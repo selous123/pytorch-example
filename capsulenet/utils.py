@@ -22,8 +22,8 @@ def loss(labels,v):
     zero = torch.zeros([1]).double()
     lamda = torch.Tensor([0.5]).double()
     if conf.cuda:
-	zero = zero.cuda()
-	lamda = lamda.cuda()
+        zero = zero.cuda()
+        lamda = lamda.cuda()
     zero = Variable(zero)
     lamda = Variable(lamda)
     m_plus = 0.9
