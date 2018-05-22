@@ -3,6 +3,7 @@
 from __future__ import division
 from model.model import Net
 import config
+conf = config.DefaultConf()
 import torch
 import torch.optim as optim
 from data.dataset import mnistData
@@ -17,7 +18,7 @@ import numpy as np
 from tabulate import tabulate
 from visualize.visutils import visualize_loss
 
-conf = config.DefaultConf()
+
 def loss(logits,labels,*args):
     """
     Args:
@@ -27,19 +28,18 @@ def loss(logits,labels,*args):
         cross entropy loss,[1,]
     """
     loss = -torch.mean(labels*torch.log(logits))
-    assert loss.size()==(1,) 
     return loss
 
 def train(net):
-    
+
     ###read file
     train_dataset = mnistData(conf.root_path,train=True)
     dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=conf.batch_size,shuffle=True,drop_last=True)
     #dataiter = iter(dataloader)
-    
+
     ###optimizer
     optimize = optim.SGD(net.parameters(),lr = conf.lr)
-    
+
     for epoch in range(conf.epoch_num):
         #set module.istraing=True
         #This has any effect only on modules such as Dropout or BatchNorm.
@@ -59,8 +59,7 @@ def train(net):
             #print logits.data.view(64,8)
             #choose "easy" sample
             l = loss(logits,labels)
-            
-            running_loss.append(l.data.cpu().numpy()[0])
+            running_loss.append(l.data.cpu().numpy())
             optimize.zero_grad()
             #visulize loss
             if conf.visualize:
@@ -68,7 +67,7 @@ def train(net):
             l.backward()
             optimize.step()
             #print "epoch is:{},step is:{},loss is:{}".format(epoch,i,l.data[0])
-        print "epoch is:{},loss is:{}".format(epoch,l.data[0])
+        print "epoch is:{},loss is:{}".format(epoch,l.item())
 
 
 
@@ -90,8 +89,8 @@ def test(net):
         #print predicted
         if conf.cuda:
             predicted = predicted.cpu()
-        
-        predicted = predicted.numpy() 
+
+        predicted = predicted.numpy()
         #print predicted
         labels = labels.numpy()
         num_examples+=labels.shape[0]
@@ -108,8 +107,8 @@ def test(net):
 #        correct += (predicted.cpu().numpy() == labels.numpy()).sum()
 # =============================================================================
 if __name__=='__main__':
-    
-    
+
+
     net = Net()
     if conf.cuda:
         net.cuda()

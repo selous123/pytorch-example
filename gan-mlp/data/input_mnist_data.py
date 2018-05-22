@@ -187,33 +187,23 @@ def load_test_labels(idx_ubyte_file=test_labels_idx1_ubyte_file):
 
 
 import os
-def read_train_data(root_path):
+def read_all_data(root_path):
+    #with shape [num_samples,28,28]
     train_images = load_train_images(os.path.join(root_path,"train-images.idx3-ubyte"))
     print "extract train images"
-    train_labels = load_train_labels(os.path.join(root_path,"train-labels.idx1-ubyte"))
-    print "extract train labels"
-    return train_images[:,np.newaxis,:,:],train_labels.astype(np.int64)
-
-def read_test_data(root_path):
     test_images = load_test_images(os.path.join(root_path,"t10k-images.idx3-ubyte"))
     print "extract test images"
+    train_labels = load_train_labels(os.path.join(root_path,"train-labels.idx1-ubyte"))
+    print "extract train labels"
     test_labels = load_test_labels(os.path.join(root_path,"t10k-labels.idx1-ubyte"))
     print "extract test labels"
-    return test_images[:,np.newaxis,:,:],test_labels.astype(np.int64)
-
-def run():
-    train_images = load_train_images()
-    train_labels = load_train_labels()
-    # test_images = load_test_images()
-    # test_labels = load_test_labels()
-
-    # 查看前十个数据及其标签以读取是否正确
-    for i in range(10):
-        print train_labels[i]
-        plt.imshow(train_images[i], cmap='gray')
-        plt.show()
-    print 'done'
+    images = np.concatenate((train_images,test_images),axis=0)
+    labels = np.concatenate((train_labels,test_labels),axis=0)
+    labels = np.ones(labels.shape)
+    return images,labels
 
 if __name__ == '__main__':
     root_path = "/home/lrh/dataset/mnist"
-    train_images,train_labels = read_train_data(root_path)
+    images,labels = read_all_data(root_path)
+    print images.shape
+    #print labels[1:10]

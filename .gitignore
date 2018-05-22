@@ -105,3 +105,6 @@ logs/
 
 #models
 pkls/
+
+#result
+result*/

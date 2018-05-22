@@ -9,31 +9,28 @@ Created on Fri Nov 17 16:03:09 2017
 class DefaultConf(object):
     def __init__(self):
         #print debug information
-        self.debug = False
-        
+        self.debug = True
+        #maybe value 'mlp-gan'[0]、'dc-gan'[1]
+        self.method = 1
         ##net configuration
-        self.lr = 0.01
+        self.lr = 0.00005
+        self.beta = (0.5,0.999)
         ##system configuration
         self.root_path = "/home/lrh/dataset/mnist"
         #batch size
-        self.batch_size = 1024
+        self.batch_size = 64
         #istraining
-        self.istraining = False
+        self.istraining = True
+
+        self.epoch_num = 20
         #cuda or not
         self.cuda = True
-        
-        ##batch normalization
-        self.bn=True
-        
+        self.bn = True
         #store pkl name
-        self.pkl_name = "pkls/mnist_init_300epoch.pkl"
-        self.epoch_num = 300
-        
-        self.visualize = False
-        #visualize train loss
-        self.train_loss_env = "mnist_train20171121"
-        self.train_loss_win = None
-    
+        self.d_steps = 5
+        self.g_steps = 1
+        self.result_directory = "result_wdcgan/"
+
 if __name__=="__main__":
     conf = DefaultConf()
     print conf.batch_size
