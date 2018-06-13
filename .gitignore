@@ -108,3 +108,11 @@ pkls/
 
 #result
 result*/
+
+
+#lsun
+lsun*/
+
+#pkl
+*.pkl
+*.pth

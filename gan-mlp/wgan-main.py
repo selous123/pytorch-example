@@ -69,7 +69,7 @@ def clip_grad(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
         m.weight.grad = clip_num(m.weight.grad,-0.01,0.01);
-    elif classname.find('BatchNorm') != -1:
+    elif classname.find('BatchNorm ') != -1:
         m.weight.grad = clip_num(m.weight.grad,-0.01,0.01);
         m.bias.grad = clip_num(m.bias.grad,-0.01,0.01);
 
