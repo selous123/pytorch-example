@@ -6,8 +6,6 @@ import torch.optim as optim
 import torchvision.utils as vutils
 import torch.nn.functional as F
 import torch.autograd as autograd
-import visutils
-import utils
 import numpy as np
 """
 1.weight initialization
@@ -22,13 +20,13 @@ nz = 128
 nc = 3
 cuda = True;
 bn = True
-dataroot="/home/lrh/dataset/cifar-10"
-batch_size = 64
+dataroot="/home/lrh/dataset/mnist"
+batch_size = 32
 epoch_num = 200
 
 critic_iters = 5
 Lambda = 10
-result_directory = "./result_iwgan_0910"
+result_directory = "./mnist_iwgan"
 env = "iwgan"
 win = None
 
@@ -45,76 +43,47 @@ def weights_init(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
-
 class Generator(nn.Module):
     def __init__(self):
-        super(Generator, self).__init__()
-        preprocess = nn.Sequential(
-            nn.Linear(128, 4 * 4 * 4 * ngf),
-            #nn.BatchNorm2d(4 * 4 * 4 * ngf),
-            nn.ReLU(True),
-        )
-
-        block1 = nn.Sequential(
-            nn.ConvTranspose2d(4 * ngf, 2 * ngf, 2, stride=2),
-            nn.BatchNorm2d(2 * ngf),
-            nn.ReLU(True),
-        )
-        block2 = nn.Sequential(
-            nn.ConvTranspose2d(2 * ngf, ngf, 2, stride=2),
-            nn.BatchNorm2d(ngf),
-            nn.ReLU(True),
-        )
-        deconv_out = nn.ConvTranspose2d(ngf, 3, 2, stride=2)
-
-        self.preprocess = preprocess
-        self.block1 = block1
-        self.block2 = block2
-        self.deconv_out = deconv_out
-        self.tanh = nn.Tanh()
-
-    def forward(self, input):
-        output = self.preprocess(input)
-        output = output.view(-1, 4 * ngf, 4, 4)
-        output = self.block1(output)
-        output = self.block2(output)
-        output = self.deconv_out(output)
-        output = self.tanh(output)
-        return output.view(-1, 3, 32, 32)
+        super(Generator,self).__init__()
+        #input: [batch_size,100,1,1]
+        self.deconv0 = nn.ConvTranspose2d(128,256,5,2,0,bias=False)
+        self.bn0 = nn.BatchNorm2d(256);
+        #class torch.nn.ConvTranspose2d(in_channels, out_channels, ...
+        #kernel_size, stride=1, padding=0, output_padding=0, groups=1, bias=True, dilation=1)
+        #ouput_shape[N,64,14,14] 7 = floor((14-5+1+2*padding)/2)
+        self.deconv1 = nn.ConvTranspose2d(256,128,5,2,0,bias=False);
+        self.bn1 = nn.BatchNorm2d(128);
+        self.deconv2 = nn.ConvTranspose2d(128,64,5,2,0,bias=False);
+        self.bn2 = nn.BatchNorm2d(64)
+        #output_shape[N,1,28,28]
+        self.deconv3 = nn.ConvTranspose2d(64,1,5,2,0,bias=False);
+        # self.bn3 = nn.BatchNorm(32)
+        # self.deconv4 = nn.ConvTranspose2d(32,1,4,2,0,bias=False)
 
 
-# class Generator(nn.Module):
-#     def __init__(self):
-#         super(Generator,self).__init__()
-#         self.deconv1 = nn.ConvTranspose2d(nz,ndf*4,4,1,0,bias=False)
-#         self.bn1 = nn.BatchNorm2d(ndf*4)
-#         #[batch_size,ngf*4,4,4]
-#         self.deconv2 = nn.ConvTranspose2d(ndf*4,ndf*2,4,2,1,bias=False)
-#         self.bn2 = nn.BatchNorm2d(ndf*2)
-#         #[batch_size,ngf*2,8,8]
-#         self.deconv3 = nn.ConvTranspose2d(ndf*2,ndf*1,4,2,1,bias=False)
-#         self.bn3 = nn.BatchNorm2d(ndf)
-#         #[batch_size,ngf*1,16,16]
-#         self.deconv4 = nn.ConvTranspose2d(ndf,nc,4,2,1,bias=False)
-#         #[batch_size,3,32,32]
-#     def forward(self,x):
-#         #input x with shape[batch_size,nz,1,1]
-#         x = self.deconv1(x,output_size=[batch_size,ndf*4,4,4])
-#         if bn:
-#             x = self.bn1(x)
-#         x = F.relu(x)
-#         x = self.deconv2(x,output_size=[batch_size,ndf*2,8,8])
-#         if bn:
-#             x = self.bn2(x)
-#         x = F.relu(x)
-#         x = self.deconv3(x,output_size=[batch_size,ndf*1,16,16])
-#         if bn:
-#             x = self.bn3(x)
-#         x = F.relu(x)
-#         x = self.deconv4(x,output_size=[batch_size,nc,32,32])
-#         x = F.tanh(x)
-#         #return [batch_size,nc,32,32]
-#         return x
+    def forward(self,x):
+        #input shape[N,100]
+        x = x.unsqueeze(2).unsqueeze(3)
+        x = self.deconv0(x)
+
+        x = self.bn0(x)
+        x = F.relu(x);
+        x = self.deconv1(x);
+
+        x = self.bn1(x);
+        x = F.relu(x)
+        x = self.deconv2(x);
+
+        x = self.bn2(x);
+        x = F.relu(x)
+
+        x = self.deconv3(x);
+        x = F.tanh(x);
+        #print x.shape
+        x = x[ :, :, 17:17 + 28, 17:17+28]
+        #output_size=[conf.batch_size,1,28,28]
+        return x;
 
 g_net = Generator()
 print g_net
@@ -123,60 +92,25 @@ if cuda:
     g_net = g_net.cuda()
 if load:
     g_net.load_state_dict(torch.load(load_gnet_directory))
-# class Discriminator(nn.Module):
-#     def __init__(self):
-#         super(Discriminator,self).__init__()
-#         #input x data[-1,3,32,32,]
-#         #with shape [N,C_in,H,W];
-#         self.conv1 = nn.Conv2d(nc,ngf,4,stride=2,padding=1,bias=False);
-#         #self.bn1 = nn.BatchNorm2d(ngf);
-#         #self.pool = nn.MaxPool2d(2,stride=2);
-#         self.conv2 = nn.Conv2d(ngf,ngf*2,4,stride=2,padding=1,bias=False);
-#         #self.bn2 = nn.BatchNorm2d(ngf*2)
-#         self.conv3 = nn.Conv2d(ngf*2,ngf*4,4,stride=2,padding=1,bias=False)
-#         #self.bn3 = nn.BatchNorm2d(ngf*4)
-#         self.conv4 = nn.Conv2d(ngf*4,1,4,1,0,bias=False);
-#     def forward(self,x):
-#         #input x with shape[batch_size,3,32,32]
-#         x = self.conv1(x)
-#         #if bn:
-#         #    x = self.bn1(x)
-#         x = F.leaky_relu(x,0.2)
-#         #x = self.pool(x);
-#
-#         x = self.conv2(x);
-#         #if bn:
-#         #    x = self.bn2(x);
-#         x = F.leaky_relu(x,0.2)
-#         #x = self.pool(x);
-#         x = self.conv3(x);
-#         #if bn:
-#         #    x = self.bn3(x);
-#         x = F.leaky_relu(x,0.2)
-#         #(batch_size,1,1,1)
-#         x = self.conv4(x);
-#         return x.squeeze();
+
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
         main = nn.Sequential(
-            nn.Conv2d(3, ndf, 3, 2, padding=1),
-            nn.LayerNorm([ndf,16,16]),
+            nn.Conv2d(1, ndf, 3, 2, padding=1),
+            nn.LayerNorm([ndf,14,14]),
             nn.LeakyReLU(),
             nn.Conv2d(ndf, 2 * ndf, 3, 2, padding=1),
-            nn.LayerNorm([2*ndf,8,8]),
-            nn.LeakyReLU(),
-            nn.Conv2d(2 * ndf, 4 * ndf, 3, 2, padding=1),
-            nn.LayerNorm([4*ndf,4,4]),
+            nn.LayerNorm([2*ndf,7,7]),
             nn.LeakyReLU(),
         )
 
         self.main = main
-        self.linear = nn.Linear(4*4*4*ndf, 1)
+        self.linear = nn.Linear(7*7*2*ndf, 1)
 
     def forward(self, input):
         output = self.main(input)
-        output = output.view(-1, 4*4*4*ndf)
+        output = output.view(-1, 7*7*2*ndf)
         output = self.linear(output)
         return output
 
@@ -192,7 +126,7 @@ def calc_gradient_penalty(netD, real_data, fake_data):
     #real_data with shape [batch_size,3,32,32]
     fake_data.requires_grad = True
     alpha = torch.rand(batch_size, 1)
-    alpha = alpha.expand(batch_size, real_data.nelement()/batch_size).contiguous().view(batch_size, 3, 32, 32)
+    alpha = alpha.expand(batch_size, real_data.nelement()/batch_size).contiguous().view(batch_size, 1, 28, 28)
     alpha = alpha.cuda() if cuda else alpha
     interpolates = alpha * real_data + ((1 - alpha) * fake_data)
     disc_interpolates = netD(interpolates)
@@ -207,10 +141,11 @@ def calc_gradient_penalty(netD, real_data, fake_data):
 
 #load dataset
 
-dataset = dset.CIFAR10(root=dataroot,download=False,transform=transforms.Compose([
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
-                    ]))
+dataset = dset.MNIST(root=dataroot,train = False,download=True,transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ]))
+
 dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,drop_last=True,shuffle=True)
 
 
@@ -239,11 +174,12 @@ for epoch in range(epoch_num):
                 real_x = real_x.cuda()
                 z = z.cuda()
 
-            fake_x = g_net(z)
+
             real_labels = d_net(real_x)
             real_label = real_labels.mean()
             real_label.backward(mone)
 
+            fake_x = g_net(z)
             fake_labels = d_net(fake_x)
             fake_label = fake_labels.mean()
             fake_label.backward(one)
@@ -272,20 +208,14 @@ for epoch in range(epoch_num):
         print "epoch is:[{}|{}],index is:[{}|{}],d_loss:{},g_loss:{}".\
             format(epoch,epoch_num,i,len(dataloader),d_loss,g_loss);
 
-    #visulize inception score
-    z = torch.randn(2500,nz)
-    inception_scores = utils.get_inception_score(g_net,z);
-    inception_score = np.array([inception_scores[0]])
-    win = visutils.visualize_loss(epoch,inception_score,env,win)
-
-
-
-    if epoch%10 == 0:
         z = torch.randn([batch_size,nz]);
         if cuda:
             z = z.cuda()
         fake_x = g_net(z)
         vutils.save_image(fake_x.cpu().detach(),'%s/fake_samples_epoch_%03d.png' % (result_directory,epoch),
             normalize=True)
+
+    if epoch%10 == 0:
+
         torch.save(g_net.state_dict(),'%s/gnet_%03d.pkl' %(result_directory,epoch));
         torch.save(d_net.state_dict(),'%s/dnet_%03d.pkl' %(result_directory,epoch));

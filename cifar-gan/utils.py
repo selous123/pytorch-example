@@ -1,7 +1,7 @@
-from inception_score import inception_score
+from inception_score_tf import inception_score
 import torch.utils.data as data
 import torch
-nz = 128
+nz = 100
 cuda = True
 
 def cov_function(x):
@@ -55,14 +55,14 @@ class cifarDataset(data.Dataset):
         return len(self.data)
 
 
-def get_inception_score(net):
-    z = torch.randn(2500,nz)
+def get_inception_score(net,z):
+
     if cuda:
         z = z.cuda()
     images = net(z)
     #images with shape [num_samples,3,32,32];
-    dataset = cifarDataset(images)
-    return inception_score(dataset, cuda=True, batch_size=32, resize=True, splits=10)
+    images = images.cpu().detach().numpy()
+    return inception_score(images, splits=10)
 
 def set_grad(net,bool_value):
     for p in net.parameters():

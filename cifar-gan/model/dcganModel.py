@@ -24,22 +24,22 @@ class dcgan_generator(nn.Module):
 
     def forward(self,x):
         #input shape[N,100]
-        x = self.deconv0(x,output_size=[conf.batch_size,128,4,4])
+        x = self.deconv0(x,output_size=[x.size(0),128,4,4])
         if conf.bn:
             x = self.bn0(x)
         x = F.relu(x);
 
-        x = self.deconv1(x,output_size=[conf.batch_size,64,8,8]);
+        x = self.deconv1(x,output_size=[x.size(0),64,8,8]);
         if conf.bn:
             x = self.bn1(x);
         x = F.relu(x)
 
-        x = self.deconv2(x,output_size=[conf.batch_size,32,16,16]);
+        x = self.deconv2(x,output_size=[x.size(0),32,16,16]);
         if conf.bn:
             x = self.bn2(x);
         x = F.relu(x)
 
-        x = self.deconv3(x,output_size=[conf.batch_size,3,32,32]);
+        x = self.deconv3(x,output_size=[x.size(0),3,32,32]);
         x = F.tanh(x);
         return x;
 

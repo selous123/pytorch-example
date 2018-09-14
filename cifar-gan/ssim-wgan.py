@@ -9,6 +9,7 @@ import torch.autograd as autograd
 import visutils
 import utils
 import numpy as np
+torch.set_printoptions(precision=10)
 """
 1.weight initialization
 2.optimizer(Adam,RMSPro)
@@ -24,19 +25,18 @@ cuda = True;
 bn = True
 dataroot="/home/lrh/dataset/cifar-10"
 batch_size = 64
-epoch_num = 200
+epoch_num = 290
 
 critic_iters = 5
 Lambda = 10
-result_directory = "./result_iwgan_0910"
+result_directory = "./result_ssim_gan_0701"
 env = "iwgan"
 win = None
 
-
 #load pre-trained model
-load = False
-load_gnet_directory = "/home/lrh/program/git/pytorch-example/cifar-gan/result_iwgan_0528/gnet_290.pkl"
-load_dnet_directory = "/home/lrh/program/git/pytorch-example/cifar-gan/result_iwgan_0528/dnet_290.pkl"
+load = True
+load_gnet_directory = "/home/lrh/program/git/pytorch-example/cifar-gan/result_iwgan_layernorm_0601/gnet_290.pkl"
+load_dnet_directory = "/home/lrh/program/git/pytorch-example/cifar-gan/result_iwgan_layernorm_0601/dnet_290.pkl"
 #build model
 def weights_init(m):
     classname = m.__class__.__name__
@@ -56,6 +56,7 @@ class Generator(nn.Module):
         )
 
         block1 = nn.Sequential(
+
             nn.ConvTranspose2d(4 * ngf, 2 * ngf, 2, stride=2),
             nn.BatchNorm2d(2 * ngf),
             nn.ReLU(True),
@@ -117,45 +118,33 @@ class Generator(nn.Module):
 #         return x
 
 g_net = Generator()
-print g_net
+#print g_net
 # g_net.apply(weights_init)
 if cuda:
     g_net = g_net.cuda()
 if load:
     g_net.load_state_dict(torch.load(load_gnet_directory))
+
 # class Discriminator(nn.Module):
 #     def __init__(self):
-#         super(Discriminator,self).__init__()
-#         #input x data[-1,3,32,32,]
-#         #with shape [N,C_in,H,W];
-#         self.conv1 = nn.Conv2d(nc,ngf,4,stride=2,padding=1,bias=False);
-#         #self.bn1 = nn.BatchNorm2d(ngf);
-#         #self.pool = nn.MaxPool2d(2,stride=2);
-#         self.conv2 = nn.Conv2d(ngf,ngf*2,4,stride=2,padding=1,bias=False);
-#         #self.bn2 = nn.BatchNorm2d(ngf*2)
-#         self.conv3 = nn.Conv2d(ngf*2,ngf*4,4,stride=2,padding=1,bias=False)
-#         #self.bn3 = nn.BatchNorm2d(ngf*4)
-#         self.conv4 = nn.Conv2d(ngf*4,1,4,1,0,bias=False);
-#     def forward(self,x):
-#         #input x with shape[batch_size,3,32,32]
-#         x = self.conv1(x)
-#         #if bn:
-#         #    x = self.bn1(x)
-#         x = F.leaky_relu(x,0.2)
-#         #x = self.pool(x);
+#         super(Discriminator, self).__init__()
+#         main = nn.Sequential(
+#             nn.Conv2d(3, ndf, 3, 2, padding=1),
+#             nn.LeakyReLU(),
+#             nn.Conv2d(ndf, 2 * ndf, 3, 2, padding=1),
+#             nn.LeakyReLU(),
+#             nn.Conv2d(2 * ndf, 4 * ndf, 3, 2, padding=1),
+#             nn.LeakyReLU(),
+#         )
 #
-#         x = self.conv2(x);
-#         #if bn:
-#         #    x = self.bn2(x);
-#         x = F.leaky_relu(x,0.2)
-#         #x = self.pool(x);
-#         x = self.conv3(x);
-#         #if bn:
-#         #    x = self.bn3(x);
-#         x = F.leaky_relu(x,0.2)
-#         #(batch_size,1,1,1)
-#         x = self.conv4(x);
-#         return x.squeeze();
+#         self.main = main
+#         self.linear = nn.Linear(4*4*4*ndf, 1)
+#
+#     def forward(self, input):
+#         output = self.main(input)
+#         output = output.view(-1, 4*4*4*ndf)
+#         output = self.linear(output)
+#         return output
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
@@ -184,8 +173,43 @@ d_net = Discriminator()
 # d_net.apply(weights_init)
 if cuda:
     d_net = d_net.cuda()
+
 if load:
-    d_net.load_state_dict(torch.load(load_dnet_directory))
+    d_net.load_state_dict(torch.load(load_dnet_directory));
+
+def cov_function(x):
+    batch_size = x.size()[0]
+    a = x - x.mean(dim=0,keepdim=True)
+    cov_matrix = torch.matmul(a.t(),a)/(batch_size-1)
+    return cov_matrix
+
+def var_function(x):
+    a = x - x.mean(dim=0,keepdim=True)
+    var_matrix = torch.sum(a ** 2,dim=0) / batch_size
+    return var_matrix
+
+import ssim
+def ssim_loss(x):
+    #x with shape [batch_size,num_features]
+    ssim_layer = ssim.SSIM(reshape = True,size_average=False,window_size = 11)
+    delta = 0.01
+    epsilon = 1e-10
+    ssim_l = torch.Tensor(x.shape).cuda();
+    num_feas = ssim_l.size(1)
+    x_delta = x.clone();
+    for i in range(num_feas):
+        x_delta[:,i] = x_delta[:,i]+delta;
+        ssim_l_i =(1 - ssim_layer(x,x_delta)) / delta
+        #print ssim_l_i.mean()
+        #print ssim_l_i.mean()
+        ssim_l[:,i] = ssim_l_i.data;
+        x_delta[:,i] = x_delta[:,i]-delta;
+    #with shape[batch_size,num_features]
+    ssim_l = ssim_l+epsilon
+    #print ssim_l
+    return ssim_l
+
+
 
 def calc_gradient_penalty(netD, real_data, fake_data):
     # print "real_data: ", real_data.size(), fake_data.size()
@@ -201,9 +225,24 @@ def calc_gradient_penalty(netD, real_data, fake_data):
                                   disc_interpolates.size()),
                               create_graph=True, only_inputs=True)[0]
     gradients = gradients.view(gradients.size(0), -1)
+    interpolates = interpolates.view(interpolates.size(0),-1)
+    #ma_distance = torch.mul(torch.matmul(gradients,cov_function(gradients)),gradients
+    #print "raw gradient : {}".format(gradients)
+    #print "var_matrix : {}".format(var_matrix)
+    #print gradients
+    ssim_l = ssim_loss(interpolates)
+    ssim_l=1+ssim_l
+    gradients = gradients/ssim_l
+    #print gradients
+    #gradient_penalty = ((torch.sqrt(torch.sum(ma_distance,dim=1)) - 1) ** 2).mean() * Lambda
     gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * Lambda
+    #print "gradient : {}".format(gradients)
+
+    #gradient_penalty = torch.mean(torch.sqrt((gradients ** 2 - 1).mean(dim=1))) * Lambda
+
     #print gradient_penalty
     return gradient_penalty
+
 
 #load dataset
 
@@ -273,19 +312,18 @@ for epoch in range(epoch_num):
             format(epoch,epoch_num,i,len(dataloader),d_loss,g_loss);
 
     #visulize inception score
-    z = torch.randn(2500,nz)
-    inception_scores = utils.get_inception_score(g_net,z);
+    inception_scores = utils.get_inception_score(g_net);
     inception_score = np.array([inception_scores[0]])
     win = visutils.visualize_loss(epoch,inception_score,env,win)
 
 
 
-    if epoch%10 == 0:
-        z = torch.randn([batch_size,nz]);
-        if cuda:
-            z = z.cuda()
-        fake_x = g_net(z)
-        vutils.save_image(fake_x.cpu().detach(),'%s/fake_samples_epoch_%03d.png' % (result_directory,epoch),
-            normalize=True)
-        torch.save(g_net.state_dict(),'%s/gnet_%03d.pkl' %(result_directory,epoch));
-        torch.save(d_net.state_dict(),'%s/dnet_%03d.pkl' %(result_directory,epoch));
+    #if epoch%10 == 0:
+    z = torch.randn([batch_size,nz]);
+    if cuda:
+        z = z.cuda()
+    fake_x = g_net(z)
+    vutils.save_image(fake_x.cpu().detach(),'%s/fake_samples_epoch_%03d.png' % (result_directory,epoch),
+        normalize=True)
+    torch.save(g_net.state_dict(),'%s/gnet_%03d.pkl' %(result_directory,epoch));
+    torch.save(d_net.state_dict(),'%s/dnet_%03d.pkl' %(result_directory,epoch));

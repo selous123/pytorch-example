@@ -116,3 +116,5 @@ lsun*/
 #pkl
 *.pkl
 *.pth
+*.tar.gz
+*.jpeg

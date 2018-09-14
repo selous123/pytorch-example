@@ -28,7 +28,7 @@ class DefaultConf(object):
         self.bn = True
         #store pkl name
         self.g_steps = 5
-        self.result_directory = "result_mnist_0913_c/adamlr0.001gsteps5network"
+        self.result_directory = "mnist_0913"
 if __name__=="__main__":
     conf = DefaultConf()
     print conf.batch_size

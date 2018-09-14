@@ -43,8 +43,6 @@ class dcgan_generator(nn.Module):
         x = F.tanh(x);
         return x;
 
-
-
 class dcgan_discriminator(nn.Module):
     def __init__(self):
         super(dcgan_discriminator,self).__init__()

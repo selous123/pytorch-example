@@ -92,7 +92,7 @@ def train(d_net,g_net):
             g_lo = g_l
 
             if conf.debug:
-                print "epoch is：[{}|{}]，index is :[{}|{}],d_loss:{},g_loss:{}".\
+                print "epoch is:[{}|{}],index is :[{}|{}],d_loss:{},g_loss:{}".\
                 format(epoch,conf.epoch_num,\
                 i,len(dataloader),d_lo,g_lo);
         #after each epoch,we visulize the result
