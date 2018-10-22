@@ -1,4 +1,4 @@
-from inception_score_tf import inception_score
+from inception_score_pytorch import inception_score
 import torch.utils.data as data
 import torch
 nz = 100
@@ -55,14 +55,22 @@ class cifarDataset(data.Dataset):
         return len(self.data)
 
 
-def get_inception_score(net,z):
+# def get_inception_score(net,z):
+#
+#     if cuda:
+#         z = z.cuda()
+#     images = net(z)
+#     #images with shape [num_samples,3,32,32];
+#     images = images.cpu().detach().numpy()
+#     return inception_score(images, splits=10)
 
-    if cuda:
-        z = z.cuda()
+def get_inception_score(net,z):
+    z = z.cuda()
     images = net(z)
+    imgs = cifarDataset(images)
     #images with shape [num_samples,3,32,32];
-    images = images.cpu().detach().numpy()
-    return inception_score(images, splits=10)
+    return inception_score(imgs,resize=True,splits=10)
+
 
 def set_grad(net,bool_value):
     for p in net.parameters():

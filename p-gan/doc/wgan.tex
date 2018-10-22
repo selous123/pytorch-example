@@ -1,0 +1,211 @@
+\def\year{2019}\relax
+%File: formatting-instruction.tex
+\documentclass[letterpaper]{article} %DO NOT CHANGE THIS
+\usepackage{aaai19}  %Required
+\usepackage{times}  %Required
+\usepackage{helvet}  %Required
+\usepackage{courier}  %Required
+\usepackage{url}  %Required
+\usepackage{graphicx}  %Required
+\usepackage{latexsym}
+\usepackage{amsfonts,amssymb}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{mathrsfs}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{array}
+\frenchspacing  %Required
+\setlength{\pdfpagewidth}{8.5in}  %Required
+\setlength{\pdfpageheight}{11in}  %Required
+\graphicspath{{Figures/}}
+%PDF Info Is Required:
+\pdfinfo{
+	/Title (2019 AAAI Formatting Instructions for Authors Using LaTeX)
+	/Author (AAAI Press Staff)}
+\setcounter{secnumdepth}{0}
+\begin{document}
+	% The file aaai.sty is the style file for AAAI Press
+	% proceedings, working notes, and technical reports.
+	%
+	\title{Deduction of Wasserstein Generative Adversarial Networks}
+	\author{hello
+	}
+	\maketitle
+	
+	
+	
+	
+
+	
+Abstract:
+
+we propose Primal Wasserstein GAN(P-WGAN),a variant of generative adversarial networks to minimize the wasserstein distance between the generator distribution and the data distribution directly instead of the dual form.Experimentally we show P-WGAN to be stable and avoid mode collapse.and we present results on serveral popular benchmark probles for image generation,and converge fastly.
+when train with large mini-batches.
+	
+Advantages:
+\begin{enumerate}
+	\item Direct optimize the primal problems of Wasserstein Distance,ensure the stability of the model.
+	\item Propose the One-to-one matching method,Construct a new linear optimization objectives,and avoid mode collapse. 
+	\item converge fastly.
+	\item Introduce isometric feature mapping,to solve the poor statistical efficiency of simple fixed cost function c like Euclidean distance in high dimensions.
+\end{enumerate}
+Proof:
+\begin{enumerate}
+	\item proof the linear combination of different metrics is also a metric 
+	\item proof lipschitz-free space is isometric space.
+\end{enumerate}
+Experiments:
+\begin{enumerate}
+	\item mixture of gaussian dataset
+	\item mnist and fashion mnist
+	\item cifar10 inception score
+\end{enumerate}
+	\section{Proofs for Theoretical Results}
+	
+	Assume $||f||_L \le 1 $,
+	
+	$$||f(x_i) - f(y_j)|| \le ||x_i-y_j||$$
+	
+	because $f(x) \in R^1$
+	therefore
+	\begin{align*}
+	||x_i-y_j|| &\ge ||f(x_i) - f(y_j)|| \\
+	&= |f(x_i)-f(y_j)| \\
+	& \ge f(x_i) - f(y_j)
+	\end{align*}
+	
+	Optimal distribution $\pi$ satisfy the condition as follow
+	\begin{align*}
+	s.t.
+	\begin{cases}
+	\sum_j\pi_{ij} = p_r(x_i) \\
+	\sum_i\pi_{ij} = p_\theta(y_j) \\
+	\pi_{ij} \ge 0
+	\end{cases}
+	\end{align*}
+	
+	Then the Wasserstein distance is defined as
+	\begin{align*}
+	W(p_\theta,p_r) &= \inf_{\gamma\in \pi} \sum_{x_i\sim p_r,y_j\sim p_\theta} c(x_i,y_j)\gamma_{ij} \\
+	&=\sup_{\gamma\in \pi} \sum_{ij} (f(x_i) - f(y_j))\gamma_{ij}\\
+	&=\sup (\sum_if(x_i) - \sum_jf(y_j))
+	\end{align*}
+	\begin{align*}
+	W(p_r, p_g) = \frac{1}{K} \sup_{\| f \|_L \leq K} \mathbb{E}_{x \sim p_r}[f(x)] - \mathbb{E}_{x \sim p_g}[f(x)]
+	\end{align*}
+	
+	
+	\begin{align*}
+	W(x,G(z)) = \inf_{\gamma\in \pi}\sum_{ij}||x_i-G(z_j)||^2_2\gamma_{ij}
+	\end{align*}
+	
+	\begin{align*}
+	W(x,G(z)) = \inf_{\gamma\in \pi}\sum_{ij}(||x_i-G(z_j)||^2_2 + ||x_i-G(z_j)||_1)\gamma_{ij}
+	\end{align*}	
+	
+	
+	\begin{align*}
+	W(Enc(x),G(z)) = \inf_{\gamma\in \pi}\sum_{ij}||Enc(x_i)-G(z_j)||^2_2\gamma_{ij}
+	\end{align*}
+	
+	
+	\begin{align*}
+	L_d = -E_{x\sim P_r}[logD(x)]-E_{x\sim P_g}[log(1-D(x))] \\
+	L_g = E_{x\sim P_r}[logD(x)]+E_{x\sim P_g}[log(1-D(x))]	\\
+	L(G, D) = \int_x \bigg( p_{r}(x) \log(D(x)) + p_g (x) \log(1 - D(x)) \bigg) dx\\
+	\end{align*}
+	
+	\begin{align*}
+	\tilde{x} = D(x), A=p_{r}(x), B=p_g(x)
+	\end{align*}
+	
+	\begin{align*}
+f(\tilde{x}) 
+& = A log\tilde{x} + B log(1-\tilde{x}) \\
+\frac{d f(\tilde{x})}{d \tilde{x}}
+& = A \frac{1}{ln10} \frac{1}{\tilde{x}} - B \frac{1}{ln10} \frac{1}{1 - \tilde{x}} \\
+& = \frac{1}{ln10} (\frac{A}{\tilde{x}} - \frac{B}{1-\tilde{x}}) \\
+& = \frac{1}{ln10} \frac{A - (A + B)\tilde{x}}{\tilde{x} (1 - \tilde{x})} \\
+\end{align*}
+
+\begin{align*}
+D^*(x) = \tilde{x}^* = \frac{A}{A + B} = \frac{p_{r}(x)}{p_{r}(x) + p_g(x)} \in [0, 1] \\
+\end{align*}
+
+\begin{align*}
+D_{JS}(p_{r} \| p_g) 
+=& \frac{1}{2} D_{KL}(p_{r} || \frac{p_{r} + p_g}{2}) + \frac{1}{2} D_{KL}(p_{g} || \frac{p_{r} + p_g}{2}) \\
+=& \frac{1}{2} \bigg( \log2 + \int_x p_{r}(x) \log \frac{p_{r}(x)}{p_{r} + p_g(x)} dx \bigg) + \\& \frac{1}{2} \bigg( \log2 + \int_x p_g(x) \log \frac{p_g(x)}{p_{r} + p_g(x)} dx \bigg) \\
+=& \frac{1}{2} \bigg( \log4 + L(G, D^*) \bigg)
+\end{align*}
+
+thus:
+\begin{align*}
+L(G, D^*) = 2D_{JS}(p_{r} \| p_g) - 2\log2
+\end{align*}
+
+
+cost function:
+\begin{align*}
+||x||_1 &= \big(\sum_{i=1}^n|x_i|\big) \\
+||x||_2 &= \big(\sum_{i=1}^nx_i^2\big)^{1/2} \\
+||x||_{L^p} &= \big(\sum_{i=1}^nx_i^p\big)^{1/p}
+\end{align*}
+
+Banach Space:
+||||
+	
+	
+Gradient Penalty
+\begin{align*}
+\lambda \big(||\nabla_{\tilde x}f(\tilde x)||-1 \big)
+\end{align*}
+
+
+consistency term:
+\begin{align*}
+CT|_{x_1,x_2} = E_{x_1,x_2}\bigg[max\bigg(0,\frac{d(f(x_1),f(x_2))}{d(x_1,x_2)}-M^{'}\bigg)\bigg] \\
+CT|{x',x''} = E_{x\sim P_r}[max(0,d(D(x'),D(x''))+0.1\cdot d(D\_(x'),D\_(x''))-M')]
+\end{align*}	
+
+orthonormal regularization
+\begin{align*}
+\lambda ||W^TW-I||^2_F
+\end{align*}
+
+spectual normalization
+\begin{align*}
+||f||_{lip}\le \prod_{l=1}^{L+1}\sigma(W^l)\\
+W_{SN} = \frac{W}{\sigma(W)} 
+\end{align*}
+
+	
+sinkhorn distance:
+\begin{align*}
+\pi^\lambda = argmin<\pi,c>-\frac1\lambda h(\pi)
+\end{align*}	
+	
+Lipschitz:
+\begin{align*}
+||f||_{Lip} = sup\frac{d_Y(f(x),f(y))}{d_X(x,y)}
+\end{align*}
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+	
+	
+	
+	
+\end{document}

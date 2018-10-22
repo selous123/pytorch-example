@@ -28,7 +28,7 @@ epoch_num = 200
 
 critic_iters = 5
 Lambda = 10
-result_directory = "./result_iwgan_0910"
+result_directory = "./result_iwgan_1014"
 env = "iwgan"
 win = None
 
@@ -222,17 +222,21 @@ mone = one*-1;
 d_optimizer = optim.Adam(d_net.parameters(),lr=1e-4,betas=(0.5,0.999))
 g_optimizer = optim.Adam(g_net.parameters(),lr=1e-4,betas=(0.5,0.999))
 
+num_samples = len(dataset)
+
 def set_grad(net,bool_value):
     for p in net.parameters():
         p.requires_grad = bool_value
 #training
 for epoch in range(epoch_num):
+
+    z_distribution = torch.randn(num_samples,nz)
     for i,data in enumerate(dataloader,0):
         #optimize discriminator
         set_grad(d_net,True)
         set_grad(g_net,False)
         real_x,labels = data;
-        z = torch.randn(batch_size,nz);
+        z = z_distribution[i*batch_size:(i+1)*batch_size,:]
         for critic_iter in range(critic_iters):
             d_net.zero_grad()
             if cuda:

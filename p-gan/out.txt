@@ -1,0 +1,9 @@
+Wed Oct 17 09:33:56 2018
+
+
+
+
+
+test 0
+Total cost is 	 38308.605469 
+Low resolution time is 	 2595.296000 
